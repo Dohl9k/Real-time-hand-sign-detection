@@ -59,4 +59,4 @@ def get_hsv_img(img):
     HSV_result = cv2.bitwise_not(HSV_mask)
     YCrCb_result = cv2.bitwise_not(YCrCb_mask)
     global_result=cv2.bitwise_not(global_mask)
-    return blur
+    return YCrCb_result
