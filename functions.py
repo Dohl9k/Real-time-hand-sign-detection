@@ -18,6 +18,7 @@ def get_label(prediction):
 def prepare_img(img):
     size_img = 64,64
     try:
+        img = get_hsv_img(img)
         img = cv2.resize(img, size_img)
     except:
         return None
@@ -27,7 +28,7 @@ def prepare_img(img):
 
 def get_sign(img):
     try:
-        prediction = classifier.predict(img.reshape(1,64,64,3), verbose=0)[0]
+        prediction = classifier.predict(img.reshape(1,64,64,1), verbose=0)[0]
         prediction = np.argmax(prediction)
     except:
         return None
@@ -40,17 +41,16 @@ def get_hsv_img(img):
         img_HSV = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     except cv2.error:
         return None
-    #skin color range for hsv color space 
-    HSV_mask = cv2.inRange(img_HSV, (0, 15, 0), (17,170,255)) 
+
+    HSV_mask = cv2.inRange(img_HSV, (0, 15, 0), (17,170,255))
     HSV_mask = cv2.morphologyEx(HSV_mask, cv2.MORPH_OPEN, np.ones((3,3), np.uint8))
 
-    #converting from gbr to YCbCr color space
+
     img_YCrCb = cv2.cvtColor(img, cv2.COLOR_BGR2YCrCb)
-    #skin color range for hsv color space 
+
     YCrCb_mask = cv2.inRange(img_YCrCb, (0, 135, 85), (255,180,135)) 
     YCrCb_mask = cv2.morphologyEx(YCrCb_mask, cv2.MORPH_OPEN, np.ones((3,3), np.uint8))
 
-    #merge skin detection (YCbCr and hsv)
     global_mask=cv2.bitwise_and(YCrCb_mask,HSV_mask)
     global_mask=cv2.medianBlur(global_mask,3)
     global_mask = cv2.morphologyEx(global_mask, cv2.MORPH_OPEN, np.ones((4,4), np.uint8))
@@ -59,4 +59,7 @@ def get_hsv_img(img):
     HSV_result = cv2.bitwise_not(HSV_mask)
     YCrCb_result = cv2.bitwise_not(YCrCb_mask)
     global_result=cv2.bitwise_not(global_mask)
+    # cv2.imshow("HSV", HSV_result)
+    # cv2.imshow("YCrCb", YCrCb_result)
+    # cv2.imshow("Global", global_result)
     return YCrCb_result

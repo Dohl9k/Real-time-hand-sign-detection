@@ -29,8 +29,8 @@ while True:
         imgCrop = img[y - offset:y + h + offset, x - offset:x + w + offset]
         hsv_sign = f.get_hsv_img(imgCrop)
         temp = f.prepare_img(imgCrop)
-        if type(temp) != np.ndarray:
-            continue
+        # if type(temp) != np.ndarray:
+        #     continue
         sign = f.get_sign(temp)
         signs.append(sign)
         cv2.rectangle(img, (bbox[0] - 20, bbox[1] - 20),
@@ -49,23 +49,20 @@ while True:
             probability = tmp/len(signs)
             print(f"Prediction:{probability}")
             signs = []
-            if probability > 0.7:
-                print(keys[0])
-                message += keys[0]
-                print(message)
+            if probability > 0.7 and keys[0] != None:
+                if keys[0] == 'space':
+                    message += " "
+                else:
+                    message += keys[0]
                 sp_message = sp.spell_correct(message)["spell_corrected_text"]
-                print(sp_message)
 
     fps = int(cap.get(cv2.CAP_PROP_FPS))
     cv2.putText(img, str(fps), (8, 80), cv2.FONT_HERSHEY_PLAIN,
                                 3, (255, 0, 255), 4)  
     cv2.putText(img, message, (8, 300), cv2.FONT_HERSHEY_PLAIN,
                                 3, (255, 0, 255), 4)  
-    cv2.putText(img, sp_message, (8, 500), cv2.FONT_HERSHEY_PLAIN,
+    cv2.putText(img, sp_message, (8, 450), cv2.FONT_HERSHEY_PLAIN,
                                 3, (255, 0, 255), 4)  
-    # cv2.namedWindow("Window", cv2.WINDOW_NORMAL)
-
-    # cv2.resizeWindow("Window", 600, 800)
     cv2.imshow("Window", img)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
