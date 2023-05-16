@@ -10,8 +10,9 @@ from spello.model import SpellCorrectionModel
 offset = 100
 size_img = 64,64
 signs = []
+word = ""
+sp_word = ""
 message = ""
-sp_message = ""
 
 cap = cv2.VideoCapture(0)
 detector = HandDetector(detectionCon=0.8, maxHands=1)
@@ -51,17 +52,16 @@ while True:
             signs = []
             if probability > 0.7 and keys[0] != None:
                 if keys[0] == 'space':
-                    message += " "
+                    message += f" {sp_word}"
+                    word = ""
                 else:
-                    message += keys[0]
-                sp_message = sp.spell_correct(message)["spell_corrected_text"]
+                    word += keys[0]
+                sp_word = sp.spell_correct(word)["spell_corrected_text"]
 
     fps = int(cap.get(cv2.CAP_PROP_FPS))
     cv2.putText(img, str(fps), (8, 80), cv2.FONT_HERSHEY_PLAIN,
                                 3, (255, 0, 255), 4)  
-    cv2.putText(img, message, (8, 300), cv2.FONT_HERSHEY_PLAIN,
-                                3, (255, 0, 255), 4)  
-    cv2.putText(img, sp_message, (8, 450), cv2.FONT_HERSHEY_PLAIN,
+    cv2.putText(img, message + sp_word, (8, 450), cv2.FONT_HERSHEY_PLAIN,
                                 3, (255, 0, 255), 4)  
     cv2.imshow("Window", img)
     if cv2.waitKey(1) & 0xFF == ord('q'):
